@@ -1,0 +1,25 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Tech  | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+	</head>
+	<body style="background-color: #13151a; color: white; font-family: system-ui, sans-serif;">
+		<Header />
+		<main style="max-width: 800px; margin: auto; padding: 2rem;">
+			<h1 style="color: #D4AF37;">Technology </h1>
+			<p style="color: #a0a0a0; font-size: 1.1rem;">
+				VHDL, Real-Time Clocks, Web Development, and hardware projects.
+			</p>
+			<hr style="border-color: #333; margin: 2rem 0;" />
+			<p> future tech and coding projects will go here...</p>
+		</main>
+		<Footer />
+	</body>
+</html>
