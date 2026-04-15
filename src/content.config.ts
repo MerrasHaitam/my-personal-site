@@ -1,7 +1,9 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const subjects = defineCollection({
-  type: 'data', // <-- Changed to data
+  // The glob loader specifically hunts down data files
+  loader: glob({ pattern: "**/*.{yaml,yml,json}", base: "./src/content/subjects" }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
@@ -9,7 +11,7 @@ const subjects = defineCollection({
 });
 
 const categories = defineCollection({
-  type: 'data', // <-- Changed to data
+  loader: glob({ pattern: "**/*.{yaml,yml,json}", base: "./src/content/categories" }),
   schema: z.object({
     title: z.string(),
     parentSubject: z.string().optional(),
@@ -17,7 +19,8 @@ const categories = defineCollection({
 });
 
 const articles = defineCollection({
-  type: 'content', // <-- Left as content (since these are Markdown files)
+  // We include .mdoc because Keystatic uses the Markdoc format
+  loader: glob({ pattern: "**/*.{md,mdx,mdoc}", base: "./src/content/articles" }),
   schema: z.object({
     title: z.string(),
     coverImage: z.string().optional(),
