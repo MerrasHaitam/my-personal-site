@@ -1,0 +1,127 @@
+---
+import { getCollection, render } from 'astro:content';
+
+// 1. Generate a page for every single article
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map(article => ({
+    // Note: Astro 5 transitioned to using .id for routing
+    params: { slug: article.id }, 
+    props: { article },
+  }));
+}
+
+// 2. Grab the specific article and render its Markdown content
+const { article } = Astro.props;
+const { Content } = await render(article);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {article.data.title}</title>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="breadcrumb">
+        <a href="javascript:history.back()">&larr; Back to Transmissions</a>
+      </nav>
+
+      <article class="content-wrapper">
+        <header class="article-header">
+          <h1>{article.data.title}</h1>
+        </header>
+
+        {/* This displays your actual clickable cover image if you uploaded one! */}
+        {article.data.coverImage && (
+          <img src={article.data.coverImage} alt="Cover" class="cover-image" />
+        )}
+
+        <div class="prose">
+          {/* This magically injects all your paragraphs, headers, and code blocks */}
+          <Content />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>
+
+<style>
+  /* Base Dark Aesthetic */
+  :root {
+    --bg-color: #0a0a0a;
+    --card-bg: #141414;
+    --text-main: #ededed;
+    --text-muted: #888888;
+    --accent: #3b82f6; 
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 800px; /* Slightly narrower for reading comfort */
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 3rem;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--text-main);
+  }
+
+  .article-header h1 {
+    font-size: 3rem;
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
+    color: var(--accent);
+  }
+
+  .cover-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #333;
+  }
+
+  /* The actual Markdown Text Styling */
+  .prose {
+    font-size: 1.15rem;
+    color: #cccccc;
+  }
+
+  .prose h2 {
+    color: #ffffff;
+    margin-top: 2.5rem;
+  }
+
+  .prose p {
+    margin-bottom: 1.5rem;
+  }
+
+  .prose code {
+    background: #222;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: monospace;
+  }
+</style>

@@ -18,11 +18,6 @@ const subjects = await getCollection('subjects');
         <p>dive into a field</p>
       </header>
 
-	  <div style="background: #111; padding: 20px; border: 1px solid red; margin: 20px 0;">
-        <h3 style="color: red; margin-top: 0;">SYSTEM DIAGNOSTIC:</h3>
-        <pre style="color: lime; overflow-x: auto;">{JSON.stringify(subjects, null, 2)}</pre>
-      </div>
-	  
       <div class="grid">
         {subjects.map((subject) => (
           <a href={`/subjects/${subject.id}`} class="card">
