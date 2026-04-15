@@ -14,13 +14,13 @@ const subjects = await getCollection('subjects');
   <body>
     <main class="container">
       <header class="hero">
-        <h1>ONERO <span class="highlight">ACADEMY</span></h1>
+        <h1> <span class="highlight">ONERO</span></h1>
         <p>Select a discipline to explore technical categories and transmissions.</p>
       </header>
 
       <div class="grid">
         {subjects.map((subject) => (
-          <a href={`/subjects/${subject.slug}`} class="card">
+          <a href={`/subjects/${subject.id}`} class="card">
             <div class="card-content">
               <h2>{subject.data.title}</h2>
               <p class="description">{subject.data.description}</p>
