@@ -5,7 +5,7 @@ import netlify from '@astrojs/netlify';
 
 export default defineConfig({
   site: 'https://drk-onero.me',
-  output: 'static', // <-- Change this exact line
+  output: 'static', // 
   adapter: netlify(), 
   integrations: [
     react(),
