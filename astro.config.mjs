@@ -5,7 +5,7 @@ import netlify from '@astrojs/netlify';
 
 export default defineConfig({
   site: 'https://drk-onero.me',
-  output: 'server', // <--- Add this exact line
+  output: 'hybrid',
   adapter: netlify(), 
   integrations: [
     react(),
