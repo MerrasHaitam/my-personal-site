@@ -1,20 +1,28 @@
-import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
-import { z } from 'astro/zod';
+import { defineCollection, z } from 'astro:content';
 
-const blog = defineCollection({
-	// Load Markdown and MDX files in the `src/content/blog/` directory.
-	loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-	// Type-check frontmatter using a schema
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			// Transform string to Date object
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			heroImage: z.optional(image()),
-		}),
+const subjects = defineCollection({
+  type: 'data', // <-- Changed to data
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+  }),
 });
 
-export const collections = { blog };
+const categories = defineCollection({
+  type: 'data', // <-- Changed to data
+  schema: z.object({
+    title: z.string(),
+    parentSubject: z.string().optional(),
+  }),
+});
+
+const articles = defineCollection({
+  type: 'content', // <-- Left as content (since these are Markdown files)
+  schema: z.object({
+    title: z.string(),
+    coverImage: z.string().optional(),
+    parentCategory: z.string().optional(),
+  }),
+});
+
+export const collections = { subjects, categories, articles };
