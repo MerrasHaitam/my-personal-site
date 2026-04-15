@@ -1,41 +1,62 @@
 import { config, fields, collection } from '@keystatic/core';
 
 export default config({
-  // This automatically switches between Local mode and GitHub Live mode
-  storage: process.env.NODE_ENV === 'development' 
-    ? { kind: 'local' } 
-    : { kind: 'github', repo: 'MerrasHaitam/my-personal-site' },
-  
+  storage: {
+    kind: 'github',
+    repo: 'MerrasHaitam/my-personal-site', // Make sure this matches your repo exactly
+  },
   collections: {
-    math: collection({
-      label: 'Math Articles',
+    // 1. The Main Subjects (Math, Tech, History)
+    subjects: collection({
+      label: '1. Subjects',
       slugField: 'title',
-      path: 'src/content/math/*/',
-      format: { contentField: 'content' },
+      path: 'src/content/subjects/*',
       schema: {
-        title: fields.slug({ name: { label: 'Title' } }),
-        category: fields.select({
-          label: 'Category',
-          description: 'Which folder does this belong in?',
-          options: [
-            { label: 'Geometry', value: 'geometry' },
-            { label: 'Algebra', value: 'algebra' },
-            { label: 'Calculus', value: 'calculus' },
-            { label: 'History', value: 'history' }
-          ],
-          defaultValue: 'geometry',
-        }),
-        content: fields.markdoc({ label: 'Article Content' }),
+        title: fields.slug({ name: { label: 'Subject Name' } }),
+        description: fields.text({ label: 'Short Description' }),
       },
     }),
-    tech: collection({
-      label: 'Tech Articles',
+    
+    // 2. The Sub-Categories 
+    categories: collection({
+      label: '2. Categories',
       slugField: 'title',
-      path: 'src/content/tech/*/',
-      format: { contentField: 'content' },
+      path: 'src/content/categories/*',
       schema: {
-        title: fields.slug({ name: { label: 'Title' } }),
-        content: fields.markdoc({ label: 'Article Content' }),
+        title: fields.slug({ name: { label: 'Category Name' } }),
+        parentSubject: fields.relationship({
+          label: 'Which Subject does this belong to?',
+          collection: 'subjects',
+        }),
+      },
+    }),
+
+    // 3. The Actual Posts
+    articles: collection({
+      label: '3. Articles',
+      slugField: 'title',
+      path: 'src/content/articles/*',
+      schema: {
+        title: fields.slug({ name: { label: 'Article Title' } }),
+        coverImage: fields.image({ 
+          label: 'Preview Picture (Clickable)', 
+          directory: 'public/images/articles', 
+          publicPath: '/images/articles/' 
+        }),
+        parentCategory: fields.relationship({
+          label: 'Which Category does this go in?',
+          collection: 'categories',
+        }),
+        content: fields.document({
+          label: 'Content',
+          formatting: true,
+          dividers: true,
+          links: true,
+          images: {
+            directory: 'public/images/content',
+            publicPath: '/images/content/'
+          },
+        }),
       },
     }),
   },
