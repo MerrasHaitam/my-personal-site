@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import keystatic from '@keystatic/astro';
-import vercel from '@astrojs/vercel/serverless'; 
+import vercel from '@astrojs/vercel'; // <--- Removed the /serverless part
 
 export default defineConfig({
   site: 'https://drk-onero.me',
