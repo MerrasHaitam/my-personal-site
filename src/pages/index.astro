@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-
+import Header from '../components/Header.astro';
 // 1. Fetch only the core Subjects from the database
 const subjects = await getCollection('subjects');
 ---
@@ -12,6 +12,7 @@ const subjects = await getCollection('subjects');
     <title>ONERO | Homepage</title>
   </head>
   <body>
+    <Header />
     <main class="container">
       <header class="hero">
         <h1> <span class="highlight">ONERO</span>'s website</h1>
