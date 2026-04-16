@@ -1,18 +1,173 @@
 ---
 import { getCollection } from 'astro:content';
 
+// 1. Generate a unique page for every category
 export async function getStaticPaths() {
   const categories = await getCollection('categories');
   return categories.map(category => {
-    // Force the URL to be clean (no .yaml extension)
-    const cleanId = category.id.replace(/\.[^/.]+$/, "");
+    // Force the Category URL to be clean (removes .yaml)
+    const cleanCategoryId = category.id.replace(/\.[^/.]+$/, "");
     return {
-      params: { id: cleanId },
-      props: { category },
+      params: { id: cleanCategoryId },
+      props: { category, cleanCategoryId },
     };
   });
 }
 
-const { category } = Astro.props;
-// ... the rest of your code remains the same
+// 2. Grab the specific category the user clicked
+const { category, cleanCategoryId } = Astro.props;
+
+// 3. Fetch articles, keeping ONLY the ones linked to this category
+const allArticles = await getCollection('articles');
+const categoryArticles = allArticles.filter(
+  (article) => {
+    // Ensure the parent reference is also clean for a perfect match
+    const parentCat = article.data.parentCategory ? article.data.parentCategory.replace(/\.[^/.]+$/, "") : "";
+    return parentCat === cleanCategoryId;
+  }
+);
 ---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {category.data.title}</title>
+  </head>
+  <body>
+    <main class="container">
+      <nav class="breadcrumb">
+        <a href="javascript:history.back()">&larr; Back to Subject</a>
+      </nav>
+
+      <header class="hero">
+        <h1>{category.data.title}</h1>
+        <p>Category Transmissions</p>
+      </header>
+
+      <div class="grid">
+        {categoryArticles.length === 0 ? (
+          <p class="empty-state">No transmissions recorded yet.</p>
+        ) : (
+          categoryArticles.map((article) => {
+            // Clean the Article ID for the final click
+            const cleanArticleId = article.id.replace(/\.[^/.]+$/, "");
+            return (
+              <a href={`/articles/${cleanArticleId}`} class="card">
+                <div class="card-content">
+                  <h2>{article.data.title}</h2>
+                  <div class="card-footer">
+                    <span>Read Transmission &rarr;</span>
+                  </div>
+                </div>
+              </a>
+            );
+          })
+        )}
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  /* Base Dark Aesthetic */
+  :root {
+    --bg-color: #0a0a0a;
+    --card-bg: #141414;
+    --text-main: #ededed;
+    --text-muted: #888888;
+    --accent: #3b82f6; 
+    --accent-glow: rgba(59, 130, 246, 0.15);
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 3rem;
+  }
+
+  .breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--text-main);
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .empty-state {
+    color: var(--text-muted);
+    font-style: italic;
+    grid-column: 1 / -1;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid #222;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px var(--accent-glow);
+  }
+
+  .card-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>
