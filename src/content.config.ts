@@ -2,7 +2,6 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const subjects = defineCollection({
-  // The glob loader specifically hunts down data files
   loader: glob({ pattern: "**/*.{yaml,yml,json}", base: "./src/content/subjects" }),
   schema: z.object({
     title: z.string(),
@@ -18,11 +17,14 @@ const categories = defineCollection({
   }),
 });
 
+// Switch this back to Astro's native Markdown engine
 const articles = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx,mdoc}", base: "./src/content/articles" }),
+  type: 'content', 
   schema: z.object({
     title: z.string(),
     coverImage: z.string().optional(),
     parentCategory: z.string().optional(),
   }),
 });
+
+export const collections = { subjects, categories, articles };
