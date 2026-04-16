@@ -19,7 +19,6 @@ const categories = defineCollection({
 });
 
 const articles = defineCollection({
-  // We include .mdoc because Keystatic uses the Markdoc format
   loader: glob({ pattern: "**/*.{md,mdx,mdoc}", base: "./src/content/articles" }),
   schema: z.object({
     title: z.string(),
@@ -27,5 +26,3 @@ const articles = defineCollection({
     parentCategory: z.string().optional(),
   }),
 });
-
-export const collections = { subjects, categories, articles };
