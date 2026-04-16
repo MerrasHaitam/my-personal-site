@@ -12,8 +12,20 @@ import HeaderLink from './HeaderLink.astro';
 
     <div class="nav-links">
       <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/subjects">Subjects</HeaderLink>
-      <HeaderLink href="/about">About</HeaderLink>
+      <HeaderLink href="/about">About Me</HeaderLink>
+      
+      <div class="lang-menu-container">
+        <button class="lang-btn" aria-label="Select Language">
+          <span class="current-lang">EN</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        
+        <div class="lang-dropdown">
+          <a href="#" class="active">EN - English</a>
+          <a href="/ar">AR - العربية</a>
+          <a href="/fr">FR - Français</a>
+        </div>
+      </div>
     </div>
   </nav>
 </header>
@@ -25,10 +37,10 @@ import HeaderLink from './HeaderLink.astro';
     top: 0;
     z-index: 100;
     width: 100%;
-    background: rgba(10, 10, 10, 0.7); /* Transparent dark background */
-    backdrop-filter: blur(12px); /* The glass blur effect */
+    background: rgba(10, 10, 10, 0.7); 
+    backdrop-filter: blur(12px); 
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid #222; /* Subtle bottom line */
+    border-bottom: 1px solid #222; 
   }
 
   .nav-container {
@@ -40,7 +52,6 @@ import HeaderLink from './HeaderLink.astro';
     align-items: center;
   }
 
-  /* Brand / Logo Styling */
   .brand a {
     text-decoration: none;
   }
@@ -55,17 +66,90 @@ import HeaderLink from './HeaderLink.astro';
   }
 
   .logo-text:hover {
-    color: #3b82f6; /* Your blue accent color */
+    color: #3b82f6; 
   }
 
-  /* Navigation Links */
   .nav-links {
     display: flex;
     gap: 2rem;
     align-items: center;
   }
 
-  /* Mobile responsiveness: Hide links on tiny screens (you can build a hamburger menu later) */
+  /* --- NEW DROPDOWN STYLING --- */
+  .lang-menu-container {
+    position: relative; /* Acts as the anchor for the dropdown */
+    display: inline-block;
+  }
+
+  .lang-btn {
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    color: #ededed;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .lang-btn:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  /* The actual dropdown menu */
+  .lang-dropdown {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid #333;
+    border-radius: 8px;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  }
+
+  /* Show menu when hovering over the container */
+  .lang-menu-container:hover .lang-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .lang-dropdown a {
+    color: #888;
+    text-decoration: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: block;
+  }
+
+  .lang-dropdown a:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #ededed;
+  }
+
+  .lang-dropdown a.active {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+  }
+
   @media (max-width: 600px) {
     .nav-links {
       gap: 1rem;

@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-
+import Header from '../../components/Header.astro';
 // 1. Tell Astro to generate a unique page for every subject in your database
 export async function getStaticPaths() {
   const subjects = await getCollection('subjects');
@@ -31,6 +31,7 @@ const subjectCategories = allCategories.filter(
     <title>ONERO | {subject.data.title}</title>
   </head>
   <body>
+    <Header />
     <main class="container">
       <nav class="breadcrumb">
         <a href="/">&larr; Return to Base</a>
