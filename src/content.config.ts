@@ -20,8 +20,8 @@ const categories = defineCollection({
 // The subjects and categories blocks stay the same above this...
 
 const articles = defineCollection({
-  // Use the Astro 5 glob loader to find standard markdown
-  loader: glob({ pattern: "**/*.md", base: "./src/content/articles" }),
+  // This new pattern catches .md, .mdx, AND .mdoc files automatically
+  loader: glob({ pattern: "**/*.{md,mdx,mdoc}", base: "./src/content/articles" }),
   schema: z.object({
     title: z.string(),
     coverImage: z.string().optional(),
