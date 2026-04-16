@@ -8,20 +8,28 @@ const currentPath = Astro.url.pathname;
 const isFr = currentPath.startsWith('/fr');
 const isAr = currentPath.startsWith('/ar');
 
-// 3. Strip the language prefix to find the "Base Page" (e.g., turns "/fr/about" into "/about")
+// 3. Set the default base path and button text
 let basePath = currentPath;
-if (isFr) basePath = currentPath.replace(/^\/fr/, '');
-else if (isAr) basePath = currentPath.replace(/^\/ar/, '');
+let currentLang = 'EN'; // Defaults to English
+
+// 4. Update them if we are in a different language room
+if (isFr) {
+  basePath = currentPath.replace(/^\/fr/, '');
+  currentLang = 'FR';
+} else if (isAr) {
+  basePath = currentPath.replace(/^\/ar/, '');
+  currentLang = 'AR';
+}
 
 // Clean up trailing slashes
 if (!basePath.startsWith('/')) basePath = '/' + basePath;
 if (basePath === '') basePath = '/';
 
-// 4. Construct the precise translated URLs for the dropdown
+// 5. Construct the precise translated URLs
 const enUrl = basePath;
 const frUrl = basePath === '/' ? '/fr' : '/fr' + basePath;
 const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
----
+---	
 
 <header class="site-header">
   <nav class="nav-container">
@@ -37,7 +45,8 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
       
       <div class="lang-menu-container">
         <button class="lang-btn" aria-label="Select Language">
-          <span class="current-lang">EN</span>
+          <span class="current-lang">{currentLang}</span>
+          
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         
@@ -46,7 +55,7 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
           <a href={arUrl}>AR - العربية</a>
           <a href={frUrl}>FR - Français</a>
         </div>
-		
+
       </div>
     </div>
   </nav>
