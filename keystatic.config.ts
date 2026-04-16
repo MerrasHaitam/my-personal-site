@@ -37,6 +37,7 @@ export default config({
       slugField: 'title',
       path: 'src/content/articles/*',
       format: { contentField: 'content' },
+      extension: 'md',
       schema: {
         title: fields.slug({ name: { label: 'Article Title' } }),
         coverImage: fields.image({ 

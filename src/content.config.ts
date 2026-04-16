@@ -17,9 +17,11 @@ const categories = defineCollection({
   }),
 });
 
-// Switch this back to Astro's native Markdown engine
+// The subjects and categories blocks stay the same above this...
+
 const articles = defineCollection({
-  type: 'content', 
+  // Use the Astro 5 glob loader to find standard markdown
+  loader: glob({ pattern: "**/*.md", base: "./src/content/articles" }),
   schema: z.object({
     title: z.string(),
     coverImage: z.string().optional(),
@@ -28,3 +30,4 @@ const articles = defineCollection({
 });
 
 export const collections = { subjects, categories, articles };
+
