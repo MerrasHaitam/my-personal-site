@@ -45,11 +45,8 @@ const categoryArticles = allArticles.filter(
         <p>Category Transmissions</p>
       </header>
 
-      <div style="background: #111; padding: 20px; border: 1px solid red; margin: 2rem 0;">
-        <h3 style="color: red; margin-top: 0;">ARTICLE RADAR:</h3>
-        <pre style="color: lime; overflow-x: auto;">{JSON.stringify(allArticles, null, 2)}</pre>
-      </div>
-      
+
+
       <div class="grid">
         {categoryArticles.length === 0 ? (
           <p class="empty-state">No transmissions recorded yet.</p>
