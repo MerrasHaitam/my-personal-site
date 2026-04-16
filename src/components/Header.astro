@@ -1,5 +1,26 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+
+// 1. Grab the current page URL
+const currentPath = Astro.url.pathname;
+
+// 2. Check what language we are currently looking at
+const isFr = currentPath.startsWith('/fr');
+const isAr = currentPath.startsWith('/ar');
+
+// 3. Strip the language prefix to find the "Base Page" (e.g., turns "/fr/about" into "/about")
+let basePath = currentPath;
+if (isFr) basePath = currentPath.replace(/^\/fr/, '');
+else if (isAr) basePath = currentPath.replace(/^\/ar/, '');
+
+// Clean up trailing slashes
+if (!basePath.startsWith('/')) basePath = '/' + basePath;
+if (basePath === '') basePath = '/';
+
+// 4. Construct the precise translated URLs for the dropdown
+const enUrl = basePath;
+const frUrl = basePath === '/' ? '/fr' : '/fr' + basePath;
+const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
 ---
 
 <header class="site-header">
@@ -21,10 +42,11 @@ import HeaderLink from './HeaderLink.astro';
         </button>
         
         <div class="lang-dropdown">
-          <a href="#" class="active">EN - English</a>
-          <a href="/ar">AR - العربية</a>
-          <a href="/fr">FR - Français</a>
+          <a href={enUrl}>EN - English</a>
+          <a href={arUrl}>AR - العربية</a>
+          <a href={frUrl}>FR - Français</a>
         </div>
+		
       </div>
     </div>
   </nav>
