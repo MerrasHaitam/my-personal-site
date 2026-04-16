@@ -30,19 +30,15 @@ const categories = defineCollection({
 const articles = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx,mdoc}", base: "./src/content/articles" }),
   schema: z.object({
-    title: z.string(), // Your internal English ID
+    // We add .optional() here so the secondary language files don't trigger the alarm
+    title: z.string().optional(), 
     coverImage: z.string().optional(),
     parentCategory: z.string().optional(),
     
-    // The new translated titles
+    // The translated titles (which live in the main index.mdoc file)
     title_en: z.string().optional(),
     title_ar: z.string().optional(),
     title_fr: z.string().optional(),
-
-    // Because Keystatic saves secondary rich-text documents as complex code in the frontmatter,
-    // we use z.any() to tell Astro not to panic when it reads them.
-    content_ar: z.any().optional(),
-    content_fr: z.any().optional(),
   }),
 });
 
