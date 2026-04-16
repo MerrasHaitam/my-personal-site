@@ -4,19 +4,23 @@ import { getCollection } from 'astro:content';
 // 1. Tell Astro to generate a unique page for every subject in your database
 export async function getStaticPaths() {
   const subjects = await getCollection('subjects');
-  return subjects.map(subject => ({
-    params: { id: subject.id },
-    props: { subject },
-  }));
+  return subjects.map(subject => {
+    // Force the Subject URL to be clean (removes .yaml or .json)
+    const cleanSubjectId = subject.id.replace(/\.[^/.]+$/, "");
+    return {
+      params: { id: cleanSubjectId },
+      props: { subject, cleanSubjectId },
+    };
+  });
 }
 
 // 2. Grab the specific subject the user just clicked on
-const { subject } = Astro.props;
+const { subject, cleanSubjectId } = Astro.props;
 
 // 3. Fetch all categories, but ONLY keep the ones linked to this specific subject
 const allCategories = await getCollection('categories');
 const subjectCategories = allCategories.filter(
-  (category) => category.data.parentSubject === subject.id
+  (category) => category.data.parentSubject === cleanSubjectId
 );
 ---
 
@@ -41,16 +45,20 @@ const subjectCategories = allCategories.filter(
         {subjectCategories.length === 0 ? (
           <p class="empty-state">No categories established yet.</p>
         ) : (
-          subjectCategories.map((category) => (
-            <a href={`/categories/${category.id}`} class="card">
-              <div class="card-content">
-                <h2>{category.data.title}</h2>
-                <div class="card-footer">
-                  <span>View Transmissions &rarr;</span>
+          subjectCategories.map((category) => {
+            // Force the Category URL to be clean for the next click
+            const cleanCategoryId = category.id.replace(/\.[^/.]+$/, "");
+            return (
+              <a href={`/categories/${cleanCategoryId}`} class="card">
+                <div class="card-content">
+                  <h2>{category.data.title}</h2>
+                  <div class="card-footer">
+                    <span>View Transmissions &rarr;</span>
+                  </div>
                 </div>
-              </div>
-            </a>
-          ))
+              </a>
+            );
+          })
         )}
       </div>
     </main>

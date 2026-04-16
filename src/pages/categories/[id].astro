@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('categories');
+  return categories.map(category => {
+    // Force the URL to be clean (no .yaml extension)
+    const cleanId = category.id.replace(/\.[^/.]+$/, "");
+    return {
+      params: { id: cleanId },
+      props: { category },
+    };
+  });
+}
+
+const { category } = Astro.props;
+// ... the rest of your code remains the same
+---
