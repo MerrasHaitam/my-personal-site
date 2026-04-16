@@ -1,16 +1,75 @@
 ---
 import HeaderLink from './HeaderLink.astro';
-import { SITE_TITLE } from '../consts';
 ---
 
-<header style="background-color: #13151a; border-bottom: 1px solid #333;">
-	<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 800px; margin: auto;">
-		<div style="font-weight: bold; font-size: 1.5rem; letter-spacing: 2px; color: white;">ONERO</div>
-		<div style="display: flex; gap: 20px;">
-			<a href="/" style="color: white; text-decoration: none; border-bottom: 2px solid #D4AF37;">Home</a>
-			<a href="/math" style="color: #646464; text-decoration: none;">Math</a>
-			<a href="/tech" style="color: #646464; text-decoration: none;">Tech</a>
-			<a href="/about" style="color: #646464; text-decoration: none;">About Me</a>
-		</div>
-	</nav>
+<header class="site-header">
+  <nav class="nav-container">
+    <div class="brand">
+      <a href="/">
+        <span class="logo-text">ONERO</span>
+      </a>
+    </div>
+
+    <div class="nav-links">
+      <HeaderLink href="/">Home</HeaderLink>
+      <HeaderLink href="/subjects">Subjects</HeaderLink>
+      <HeaderLink href="/about">About</HeaderLink>
+    </div>
+  </nav>
 </header>
+
+<style>
+  /* Sticky Glassmorphism Header */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(10, 10, 10, 0.7); /* Transparent dark background */
+    backdrop-filter: blur(12px); /* The glass blur effect */
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #222; /* Subtle bottom line */
+  }
+
+  .nav-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Brand / Logo Styling */
+  .brand a {
+    text-decoration: none;
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #ededed;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+  }
+
+  .logo-text:hover {
+    color: #3b82f6; /* Your blue accent color */
+  }
+
+  /* Navigation Links */
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  /* Mobile responsiveness: Hide links on tiny screens (you can build a hamburger menu later) */
+  @media (max-width: 600px) {
+    .nav-links {
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+  }
+</style>
