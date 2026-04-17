@@ -59,7 +59,9 @@ const matchingCategories = allCategories.filter(cat =>
       <div style="display: grid; gap: 1rem;">
         {matchingCategories.map(cat => {
            const catId = cat.id.replace(/\.[^/.]+$/, "");
-           const prefix = lang ? `/${lang}` : '';
+           
+           // THE FIX: Prevents adding /en/ to the URL
+           const prefix = (lang && lang !== 'en') ? `/${lang}` : '';
            
            let catTitle = cat.data.title;
            if (lang === 'en') catTitle = cat.data.title_en || catTitle;

@@ -50,7 +50,9 @@ const matchingArticles = mainArticles.filter(article => article.data.parentCateg
       <div style="display: grid; gap: 1rem;">
         {matchingArticles.map(article => {
            const cleanId = article.id.replace(/\/index$/, '');
-           const prefix = lang ? `/${lang}` : '';
+           
+           // THE FIX: Prevents adding /en/ to the URL
+           const prefix = (lang && lang !== 'en') ? `/${lang}` : '';
            
            // Figure out the translated article title for the button
            let artTitle = article.data.title;
