@@ -4,23 +4,13 @@ import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const allEntries = await getCollection('articles');
-
-  // 1. Isolate the main index files (ignore the secondary content_fr/ar files)
   const mainArticles = allEntries.filter(entry => entry.id.endsWith('/index') || !entry.id.includes('/'));
-
   const paths = [];
 
   mainArticles.forEach(article => {
-    // Clean the ID (turns "test/index" into "test")
     const cleanId = article.id.replace(/\/index$/, '');
-
-    // English (Root URL) -> passing undefined tells Astro to skip the [...lang] folder entirely!
     paths.push({ params: { lang: undefined, id: cleanId }, props: { article, lang: 'en', allEntries } });
-
-    // French URL
     paths.push({ params: { lang: 'fr', id: cleanId }, props: { article, lang: 'fr', allEntries } });
-
-    // Arabic URL
     paths.push({ params: { lang: 'ar', id: cleanId }, props: { article, lang: 'ar', allEntries } });
   });
 
@@ -30,7 +20,6 @@ export async function getStaticPaths() {
 const { article, lang, allEntries } = Astro.props;
 const cleanId = article.id.replace(/\/index$/, '');
 
-// 2. Determine the exact Title and Content based on the URL language
 let displayTitle = article.data.title;
 let EntryToRender = article;
 
@@ -46,9 +35,12 @@ if (lang === 'en') {
   if (arEntry) EntryToRender = arEntry;
 }
 
-// 3. Render the Markdown into HTML
-const { Content } = await render(EntryToRender);
+// THE UPGRADE: We extract 'headings' alongside the Content
+const { Content, headings } = await render(EntryToRender);
 const isRtl = lang === 'ar';
+
+// Filter the map to only show main sections (H2) and sub-sections (H3)
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 ---
 
 <html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
@@ -60,13 +52,34 @@ const isRtl = lang === 'ar';
   <body>
     <Header />
     <main class="container">
-      <article class="prose">
-        <h1>{displayTitle}</h1>
+      
+      <div class="layout-grid">
         
-        <div class="content-body">
-           <Content />
-        </div>
-      </article>
+        <aside class="sidebar">
+          <div class="toc-container">
+            <h3>{lang === 'fr' ? 'Sommaire' : lang === 'ar' ? 'محتويات' : 'Table of Contents'}</h3>
+            {toc.length > 0 ? (
+              <ul>
+                {toc.map(heading => (
+                  <li class={`depth-${heading.depth}`}>
+                    <a href={`#${heading.slug}`}>{heading.text}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="empty-toc">No sections found.</p>
+            )}
+          </div>
+        </aside>
+
+        <article class="prose">
+          <h1>{displayTitle}</h1>
+          <div class="content-body">
+             <Content />
+          </div>
+        </article>
+      </div>
+      
     </main>
   </body>
 </html>
@@ -75,7 +88,9 @@ const isRtl = lang === 'ar';
   :root {
     --bg-color: #0a0a0a;
     --text-main: #ededed;
+    --text-muted: #888;
     --accent: #3b82f6;
+    --code-bg: #111111;
   }
   
   body {
@@ -86,16 +101,69 @@ const isRtl = lang === 'ar';
   }
   
   .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 4rem 2rem;
   }
-  
-  .prose h1 {
-    color: var(--accent);
-    font-size: 3rem;
-    margin-bottom: 2rem;
+
+  /* Grid Layout for Sidebar and Content */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* Sidebar Styles */
+  .toc-container {
+    position: sticky;
+    top: 100px; /* Stays fixed as you scroll */
+    background: rgba(20, 20, 20, 0.5);
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .toc-container h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
     letter-spacing: 1px;
+    color: var(--accent);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+  }
+
+  .toc-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc-container li { margin-bottom: 0.5rem; }
+  
+  /* Indent H3s slightly for a hierarchy effect */
+  .toc-container .depth-3 { padding-inline-start: 1rem; font-size: 0.9rem; }
+
+  .toc-container a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: block;
+    line-height: 1.4;
+  }
+
+  .toc-container a:hover { color: var(--text-main); }
+  .empty-toc { color: #555; font-size: 0.9rem; font-style: italic; }
+
+  /* Premium Article Typography */
+  .prose h1 {
+    color: var(--text-main);
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+    margin-top: 0;
+    line-height: 1.1;
   }
   
   .content-body {
@@ -104,29 +172,59 @@ const isRtl = lang === 'ar';
     color: #cccccc;
   }
   
-  /* Beautiful formatting for your technical Markdown */
-  .content-body :global(h2) { color: #fff; margin-top: 3rem; margin-bottom: 1rem; }
+  /* Auto-Anchors for Headers (Needed for ToC to work) */
+  .content-body :global(h2), .content-body :global(h3) { 
+    color: #fff; 
+    margin-top: 3.5rem; 
+    margin-bottom: 1rem; 
+    scroll-margin-top: 100px; /* Prevents header from hiding under sticky nav */
+  }
+  .content-body :global(h2) { font-size: 2rem; border-bottom: 1px solid #222; padding-bottom: 0.5rem; }
   .content-body :global(p) { margin-bottom: 1.5rem; }
   .content-body :global(strong) { color: #fff; }
+  
+  /* Beautiful IDE-Style Code Blocks */
   .content-body :global(code) { 
-    background: #1a1a1a; 
+    background: #222; 
     padding: 0.2rem 0.4rem; 
     border-radius: 4px; 
-    color: #ff7b72; 
-    font-family: monospace; 
+    color: #ff7b72; /* GitHub dark mode string color */
+    font-family: 'Courier New', Courier, monospace; 
+    font-size: 0.9em;
   }
+  
   .content-body :global(pre) { 
-    background: #111; 
+    background: var(--code-bg) !important; 
     padding: 1.5rem; 
     border-radius: 8px; 
     overflow-x: auto; 
     border: 1px solid #333; 
-    margin-bottom: 2rem; 
+    margin: 2rem 0; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
+
+  .content-body :global(pre code) {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-size: 0.95rem;
+  }
+  
   .content-body :global(img) { 
     max-width: 100%; 
     border-radius: 8px; 
-    border: 1px solid #222; 
-    margin: 2rem 0; 
+    border: 1px solid #333; 
+    margin: 2.5rem 0; 
+  }
+
+  /* Responsive Fix: Stack layout on mobile phones */
+  @media (max-width: 900px) {
+    .layout-grid {
+      grid-template-columns: 1fr;
+    }
+    .toc-container {
+      position: static;
+      margin-bottom: 2rem;
+    }
   }
 </style>
