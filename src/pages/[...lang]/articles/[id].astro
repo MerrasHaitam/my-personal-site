@@ -35,12 +35,15 @@ if (lang === 'en') {
   if (arEntry) EntryToRender = arEntry;
 }
 
-// THE UPGRADE: We extract 'headings' alongside the Content
-const { Content, headings } = await render(EntryToRender);
-const isRtl = lang === 'ar';
+// THE UPGRADE: Explicit, fail-safe rendering
+const renderResult = await render(EntryToRender);
+const Content = renderResult.Content;
 
-// THE FIX: We add (headings || []) as a safety net!
-const toc = (headings || []).filter(h => h.depth === 2 || h.depth === 3);
+// Safely look for headings, default to empty array if Markdoc hides them
+const rawHeadings = renderResult.headings || [];
+const toc = rawHeadings.filter(h => h.depth === 2 || h.depth === 3);
+
+const isRtl = lang === 'ar';
 ---
 
 <html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
