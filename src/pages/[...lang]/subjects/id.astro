@@ -1,0 +1,71 @@
+---
+import Header from '../../../components/Header.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const subjects = await getCollection('subjects');
+  const paths = [];
+
+  subjects.forEach(subject => {
+    const cleanId = subject.id.replace(/\.[^/.]+$/, "");
+    paths.push({ params: { lang: undefined, id: cleanId }, props: { subject, lang: 'en' } });
+    paths.push({ params: { lang: 'fr', id: cleanId }, props: { subject, lang: 'fr' } });
+    paths.push({ params: { lang: 'ar', id: cleanId }, props: { subject, lang: 'ar' } });
+  });
+
+  return paths;
+}
+
+const { subject, lang } = Astro.props;
+const isRtl = lang === 'ar';
+
+let displayTitle = subject.data.title;
+let displayDesc = '';
+
+if (lang === 'en') {
+  displayTitle = subject.data.title_en || subject.data.title;
+  displayDesc = subject.data.description_en || '';
+} else if (lang === 'fr') {
+  displayTitle = subject.data.title_fr || displayTitle;
+  displayDesc = subject.data.description_fr || '';
+} else if (lang === 'ar') {
+  displayTitle = subject.data.title_ar || displayTitle;
+  displayDesc = subject.data.description_ar || '';
+}
+
+// Fetch categories that belong to this subject
+const allCategories = await getCollection('categories');
+const matchingCategories = allCategories.filter(cat => cat.data.parentSubject === subject.id);
+---
+
+<html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {displayTitle}</title>
+  </head>
+  <body style="background: #0a0a0a; color: #ededed; font-family: sans-serif; margin: 0;">
+    <Header />
+    <main style="max-width: 1000px; margin: 4rem auto; padding: 2rem;">
+      <h1 style="color: #3b82f6; font-size: 3rem;">{displayTitle}</h1>
+      <p style="color: #888; font-size: 1.2rem;">{displayDesc}</p>
+      
+      <div style="display: grid; gap: 1rem; margin-top: 3rem;">
+        {matchingCategories.map(cat => {
+           const catId = cat.id.replace(/\.[^/.]+$/, "");
+           const prefix = lang ? `/${lang}` : '';
+           let catTitle = cat.data.title;
+           if (lang === 'en') catTitle = cat.data.title_en || catTitle;
+           if (lang === 'fr') catTitle = cat.data.title_fr || catTitle;
+           if (lang === 'ar') catTitle = cat.data.title_ar || catTitle;
+
+           return (
+             <a href={`${prefix}/categories/${catId}`} style="background: #141414; padding: 2rem; border: 1px solid #222; border-radius: 8px; color: white; text-decoration: none; font-size: 1.5rem;">
+               {catTitle} &rarr;
+             </a>
+           )
+        })}
+      </div>
+    </main>
+  </body>
+</html>

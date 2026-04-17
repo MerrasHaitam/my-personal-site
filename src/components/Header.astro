@@ -1,18 +1,16 @@
 ---
 import HeaderLink from './HeaderLink.astro';
 
-// 1. Grab the current page URL
+// 1. Grab the current page URL safely
 const currentPath = Astro.url.pathname;
 
-// 2. Check what language we are currently looking at
-const isFr = currentPath.startsWith('/fr');
-const isAr = currentPath.startsWith('/ar');
+// 2. Strict language check (Ensures "/architecture" doesn't trigger as Arabic "/ar")
+const isFr = currentPath.startsWith('/fr/') || currentPath === '/fr';
+const isAr = currentPath.startsWith('/ar/') || currentPath === '/ar';
 
-// 3. Set the default base path and button text
 let basePath = currentPath;
-let currentLang = 'EN'; // Defaults to English
+let currentLang = 'EN';
 
-// 4. Update them if we are in a different language room
 if (isFr) {
   basePath = currentPath.replace(/^\/fr/, '');
   currentLang = 'FR';
@@ -21,15 +19,13 @@ if (isFr) {
   currentLang = 'AR';
 }
 
-// Clean up trailing slashes
 if (!basePath.startsWith('/')) basePath = '/' + basePath;
 if (basePath === '') basePath = '/';
 
-// 5. Construct the precise translated URLs
 const enUrl = basePath;
 const frUrl = basePath === '/' ? '/fr' : '/fr' + basePath;
 const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
----	
+---
 
 <header class="site-header">
   <nav class="nav-container">
@@ -46,27 +42,24 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
       <div class="lang-menu-container">
         <button class="lang-btn" aria-label="Select Language">
           <span class="current-lang">{currentLang}</span>
-          
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         
         <div class="lang-dropdown">
-          <a href={enUrl}>EN - English</a>
-          <a href={arUrl}>AR - العربية</a>
-          <a href={frUrl}>FR - Français</a>
+          <a href={enUrl} class={currentLang === 'EN' ? 'active' : ''}>EN - English</a>
+          <a href={arUrl} class={currentLang === 'AR' ? 'active' : ''}>AR - العربية</a>
+          <a href={frUrl} class={currentLang === 'FR' ? 'active' : ''}>FR - Français</a>
         </div>
-
       </div>
     </div>
   </nav>
 </header>
 
 <style>
-  /* Sticky Glassmorphism Header */
   .site-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000; /* Pulled forward to stay above articles */
     width: 100%;
     background: rgba(10, 10, 10, 0.7); 
     backdrop-filter: blur(12px); 
@@ -83,33 +76,25 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
     align-items: center;
   }
 
-  .brand a {
-    text-decoration: none;
-  }
+  .brand a { text-decoration: none; }
+  .logo-text { font-size: 1.5rem; font-weight: 800; letter-spacing: 4px; color: #ededed; transition: color 0.3s ease; }
+  .logo-text:hover { color: #3b82f6; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
 
-  .logo-text {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: 4px;
-    color: #ededed;
-    text-transform: uppercase;
-    transition: color 0.3s ease;
-  }
-
-  .logo-text:hover {
-    color: #3b82f6; 
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-  }
-
-  /* --- NEW DROPDOWN STYLING --- */
+  /* Dropdown Engine */
   .lang-menu-container {
-    position: relative; /* Acts as the anchor for the dropdown */
+    position: relative; 
     display: inline-block;
+  }
+
+  /* This creates an invisible bridge so your mouse doesn't fall off the hover zone */
+  .lang-menu-container::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 15px; 
   }
 
   .lang-btn {
@@ -118,7 +103,6 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
     border-radius: 20px;
     padding: 0.4rem 0.8rem;
     color: #ededed;
-    font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -133,14 +117,11 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
     background: rgba(59, 130, 246, 0.1);
   }
 
-  /* The actual dropdown menu */
   .lang-dropdown {
     position: absolute;
-    top: 120%;
+    top: calc(100% + 10px);
     right: 0;
     background: rgba(15, 15, 15, 0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border: 1px solid #333;
     border-radius: 8px;
     min-width: 140px;
@@ -151,10 +132,10 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.2s ease;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+    z-index: 9999; /* FORCE DROPDOWN TO THE ABSOLUTE FRONT */
   }
 
-  /* Show menu when hovering over the container */
   .lang-menu-container:hover .lang-dropdown {
     opacity: 1;
     visibility: visible;
@@ -171,20 +152,6 @@ const arUrl = basePath === '/' ? '/ar' : '/ar' + basePath;
     display: block;
   }
 
-  .lang-dropdown a:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #ededed;
-  }
-
-  .lang-dropdown a.active {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.05);
-  }
-
-  @media (max-width: 600px) {
-    .nav-links {
-      gap: 1rem;
-      font-size: 0.9rem;
-    }
-  }
+  .lang-dropdown a:hover { background: rgba(255, 255, 255, 0.05); color: #ededed; }
+  .lang-dropdown a.active { color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
 </style>
