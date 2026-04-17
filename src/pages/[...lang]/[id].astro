@@ -1,0 +1,132 @@
+---
+import Header from '../../../components/Header.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allEntries = await getCollection('articles');
+
+  // 1. Isolate the main index files (ignore the secondary content_fr/ar files)
+  const mainArticles = allEntries.filter(entry => entry.id.endsWith('/index') || !entry.id.includes('/'));
+
+  const paths = [];
+
+  mainArticles.forEach(article => {
+    // Clean the ID (turns "test/index" into "test")
+    const cleanId = article.id.replace(/\/index$/, '');
+
+    // English (Root URL) -> passing undefined tells Astro to skip the [...lang] folder entirely!
+    paths.push({ params: { lang: undefined, id: cleanId }, props: { article, lang: 'en', allEntries } });
+
+    // French URL
+    paths.push({ params: { lang: 'fr', id: cleanId }, props: { article, lang: 'fr', allEntries } });
+
+    // Arabic URL
+    paths.push({ params: { lang: 'ar', id: cleanId }, props: { article, lang: 'ar', allEntries } });
+  });
+
+  return paths;
+}
+
+const { article, lang, allEntries } = Astro.props;
+const cleanId = article.id.replace(/\/index$/, '');
+
+// 2. Determine the exact Title and Content based on the URL language
+let displayTitle = article.data.title;
+let EntryToRender = article;
+
+if (lang === 'en') {
+  displayTitle = article.data.title_en || article.data.title;
+} else if (lang === 'fr') {
+  displayTitle = article.data.title_fr || displayTitle;
+  const frEntry = allEntries.find(e => e.id === `${cleanId}/content_fr`);
+  if (frEntry) EntryToRender = frEntry;
+} else if (lang === 'ar') {
+  displayTitle = article.data.title_ar || displayTitle;
+  const arEntry = allEntries.find(e => e.id === `${cleanId}/content_ar`);
+  if (arEntry) EntryToRender = arEntry;
+}
+
+// 3. Render the Markdown into HTML
+const { Content } = await render(EntryToRender);
+const isRtl = lang === 'ar';
+---
+
+<html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {displayTitle}</title>
+  </head>
+  <body>
+    <Header />
+    <main class="container">
+      <article class="prose">
+        <h1>{displayTitle}</h1>
+        
+        <div class="content-body">
+           <Content />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>
+
+<style>
+  :root {
+    --bg-color: #0a0a0a;
+    --text-main: #ededed;
+    --accent: #3b82f6;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  
+  .prose h1 {
+    color: var(--accent);
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+  }
+  
+  .content-body {
+    line-height: 1.8;
+    font-size: 1.15rem;
+    color: #cccccc;
+  }
+  
+  /* Beautiful formatting for your technical Markdown */
+  .content-body :global(h2) { color: #fff; margin-top: 3rem; margin-bottom: 1rem; }
+  .content-body :global(p) { margin-bottom: 1.5rem; }
+  .content-body :global(strong) { color: #fff; }
+  .content-body :global(code) { 
+    background: #1a1a1a; 
+    padding: 0.2rem 0.4rem; 
+    border-radius: 4px; 
+    color: #ff7b72; 
+    font-family: monospace; 
+  }
+  .content-body :global(pre) { 
+    background: #111; 
+    padding: 1.5rem; 
+    border-radius: 8px; 
+    overflow-x: auto; 
+    border: 1px solid #333; 
+    margin-bottom: 2rem; 
+  }
+  .content-body :global(img) { 
+    max-width: 100%; 
+    border-radius: 8px; 
+    border: 1px solid #222; 
+    margin: 2rem 0; 
+  }
+</style>
