@@ -39,8 +39,8 @@ if (lang === 'en') {
 const { Content, headings } = await render(EntryToRender);
 const isRtl = lang === 'ar';
 
-// Filter the map to only show main sections (H2) and sub-sections (H3)
-const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+// THE FIX: We add (headings || []) as a safety net!
+const toc = (headings || []).filter(h => h.depth === 2 || h.depth === 3);
 ---
 
 <html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
