@@ -1,0 +1,70 @@
+---
+import Header from '../../../components/Header.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('categories');
+  const paths = [];
+
+  categories.forEach(category => {
+    const cleanId = category.id.replace(/\.[^/.]+$/, "");
+    
+    // Build the three language paths
+    paths.push({ params: { lang: undefined, id: cleanId }, props: { category, lang: 'en' } });
+    paths.push({ params: { lang: 'fr', id: cleanId }, props: { category, lang: 'fr' } });
+    paths.push({ params: { lang: 'ar', id: cleanId }, props: { category, lang: 'ar' } });
+  });
+
+  return paths;
+}
+
+const { category, lang } = Astro.props;
+const isRtl = lang === 'ar';
+
+// Calculate translated title
+let displayTitle = category.data.title;
+if (lang === 'en') displayTitle = category.data.title_en || category.data.title;
+if (lang === 'fr') displayTitle = category.data.title_fr || displayTitle;
+if (lang === 'ar') displayTitle = category.data.title_ar || displayTitle;
+
+// Fetch all articles that belong to this specific category
+const allArticles = await getCollection('articles');
+
+// We only want the main index files, not the hidden content_ar/fr chunks
+const mainArticles = allArticles.filter(entry => entry.id.endsWith('/index') || !entry.id.includes('/'));
+const matchingArticles = mainArticles.filter(article => article.data.parentCategory === category.id);
+---
+
+<html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {displayTitle}</title>
+  </head>
+  <body style="background: #0a0a0a; color: #ededed; font-family: sans-serif; margin: 0;">
+    <Header />
+    
+    <main style="max-width: 1000px; margin: 4rem auto; padding: 2rem;">
+      <h1 style="color: #3b82f6; font-size: 3rem; margin-bottom: 3rem;">{displayTitle}</h1>
+      
+      <div style="display: grid; gap: 1rem;">
+        {matchingArticles.map(article => {
+           const cleanId = article.id.replace(/\/index$/, '');
+           const prefix = lang ? `/${lang}` : '';
+           
+           // Figure out the translated article title for the button
+           let artTitle = article.data.title;
+           if (lang === 'en') artTitle = article.data.title_en || artTitle;
+           if (lang === 'fr') artTitle = article.data.title_fr || artTitle;
+           if (lang === 'ar') artTitle = article.data.title_ar || artTitle;
+
+           return (
+             <a href={`${prefix}/articles/${cleanId}`} style="background: #141414; padding: 1.5rem; border: 1px solid #222; border-radius: 8px; color: white; text-decoration: none; font-size: 1.2rem; transition: border-color 0.2s;">
+               {artTitle}
+             </a>
+           )
+        })}
+      </div>
+    </main>
+  </body>
+</html>

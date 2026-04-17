@@ -1,0 +1,87 @@
+---
+import Header from '../components/Header.astro';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | 404 Error</title>
+  </head>
+  <body>
+    <Header />
+    <main class="error-container">
+      <div class="glitch-box">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-msg">SYSTEM TRANSMISSION LOST</h2>
+        <p class="error-desc">The data bank you are attempting to access does not exist or has been relocated.</p>
+        
+        <a href="/" class="home-btn">Initialize Return Sequence</a>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    background-color: #0a0a0a;
+    color: #ededed;
+    font-family: monospace;
+    margin: 0;
+  }
+
+  .error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .glitch-box {
+    border: 1px solid #333;
+    padding: 4rem;
+    background: #111;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.05);
+  }
+
+  .error-code {
+    font-size: 6rem;
+    color: #ff3333; /* Red alert color */
+    margin: 0;
+    letter-spacing: 5px;
+    text-shadow: 2px 2px 0px rgba(255,0,0,0.3);
+  }
+
+  .error-msg {
+    font-size: 1.5rem;
+    color: #ededed;
+    margin-top: 1rem;
+    letter-spacing: 2px;
+  }
+
+  .error-desc {
+    color: #888;
+    margin-bottom: 3rem;
+  }
+
+  .home-btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: transparent;
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+  }
+
+  .home-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  }
+</style>
