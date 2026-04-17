@@ -7,7 +7,9 @@ export async function getStaticPaths() {
   const paths = [];
 
   subjects.forEach(subject => {
+    // Strips any .yaml or .json extensions
     const cleanId = subject.id.replace(/\.[^/.]+$/, "");
+    
     paths.push({ params: { lang: undefined, id: cleanId }, props: { subject, lang: 'en' } });
     paths.push({ params: { lang: 'fr', id: cleanId }, props: { subject, lang: 'fr' } });
     paths.push({ params: { lang: 'ar', id: cleanId }, props: { subject, lang: 'ar' } });
@@ -19,6 +21,7 @@ export async function getStaticPaths() {
 const { subject, lang } = Astro.props;
 const isRtl = lang === 'ar';
 
+// Calculate translated title and description
 let displayTitle = subject.data.title;
 let displayDesc = '';
 
@@ -33,9 +36,12 @@ if (lang === 'en') {
   displayDesc = subject.data.description_ar || '';
 }
 
-// Fetch categories that belong to this subject
+// Safely fetch connected categories 
+const cleanSubjectId = subject.id.replace(/\.[^/.]+$/, "");
 const allCategories = await getCollection('categories');
-const matchingCategories = allCategories.filter(cat => cat.data.parentSubject === subject.id);
+const matchingCategories = allCategories.filter(cat => 
+  cat.data.parentSubject === subject.id || cat.data.parentSubject === cleanSubjectId
+);
 ---
 
 <html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
@@ -47,20 +53,21 @@ const matchingCategories = allCategories.filter(cat => cat.data.parentSubject ==
   <body style="background: #0a0a0a; color: #ededed; font-family: sans-serif; margin: 0;">
     <Header />
     <main style="max-width: 1000px; margin: 4rem auto; padding: 2rem;">
-      <h1 style="color: #3b82f6; font-size: 3rem;">{displayTitle}</h1>
-      <p style="color: #888; font-size: 1.2rem;">{displayDesc}</p>
+      <h1 style="color: #3b82f6; font-size: 3rem; margin-bottom: 1rem;">{displayTitle}</h1>
+      <p style="color: #888; font-size: 1.2rem; margin-bottom: 3rem;">{displayDesc}</p>
       
-      <div style="display: grid; gap: 1rem; margin-top: 3rem;">
+      <div style="display: grid; gap: 1rem;">
         {matchingCategories.map(cat => {
            const catId = cat.id.replace(/\.[^/.]+$/, "");
            const prefix = lang ? `/${lang}` : '';
+           
            let catTitle = cat.data.title;
            if (lang === 'en') catTitle = cat.data.title_en || catTitle;
            if (lang === 'fr') catTitle = cat.data.title_fr || catTitle;
            if (lang === 'ar') catTitle = cat.data.title_ar || catTitle;
 
            return (
-             <a href={`${prefix}/categories/${catId}`} style="background: #141414; padding: 2rem; border: 1px solid #222; border-radius: 8px; color: white; text-decoration: none; font-size: 1.5rem;">
+             <a href={`${prefix}/categories/${catId}`} style="background: #141414; padding: 2rem; border: 1px solid #222; border-radius: 8px; color: white; text-decoration: none; font-size: 1.5rem; transition: border-color 0.2s;">
                {catTitle} &rarr;
              </a>
            )
