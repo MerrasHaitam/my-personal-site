@@ -1,5 +1,6 @@
 ---
 import Header from '../../../components/Header.astro';
+import AdBanner from '../../../components/AdBanner.astro'; 
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -73,6 +74,7 @@ const isRtl = lang === 'ar';
               <p class="empty-toc">No sections found.</p>
             )}
           </div>
+          <AdBanner location="sidebar" />
         </aside>
 
         <article class="prose">

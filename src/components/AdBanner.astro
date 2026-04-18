@@ -1,0 +1,48 @@
+---
+// You can pass a 'slot' prop if you have different ad sizes (e.g., 'sidebar', 'footer')
+const { location = 'sidebar' } = Astro.props;
+---
+
+<div class={`ad-container ${location}`}>
+  <div class="ad-placeholder">
+    <span class="ad-label">ADVERTISEMENT</span>
+    <p>Space reserved for future ad network script.</p>
+  </div>
+</div>
+
+<style>
+  .ad-container {
+    width: 100%;
+    margin: 2rem 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ad-placeholder {
+    width: 100%;
+    min-height: 250px;
+    background: #111;
+    border: 1px dashed #333;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .ad-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #444;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Specific styling for when it's placed in the sidebar */
+  .ad-container.sidebar .ad-placeholder {
+    min-height: 300px;
+  }
+</style>
