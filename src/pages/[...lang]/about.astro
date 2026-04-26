@@ -1,0 +1,79 @@
+---
+import Header from '../../components/Header.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: undefined } }, // Default English
+    { params: { lang: 'fr' } },
+    { params: { lang: 'ar' } }
+  ];
+}
+
+const { lang } = Astro.params;
+const isRtl = lang === 'ar';
+
+// The Translations
+let pageTitle = "About Me";
+let content = "My name is Haitam Merras, and I am currently an engineering student. I have a deep passion for technology, mathematics, and various fields of science. I decided to build this personal website as a digital workspace to document my learning and share the fascinating concepts I discover along the way. I hope you enjoy the articles!";
+
+if (lang === 'fr') {
+  pageTitle = "À Propos";
+  content = "Je m'appelle Haitam Merras et je suis actuellement étudiant en école d'ingénieurs. Passionné par la technologie, les mathématiques et diverses disciplines scientifiques, j'ai créé ce site web personnel comme un espace numérique pour documenter mon apprentissage et partager les concepts fascinants que je découvre. J'espère que ces articles vous plairont !";
+} else if (lang === 'ar') {
+  pageTitle = "من أنا";
+  content = "اسمي هيثم مراس، وأنا حالياً طالب هندسة. لدي شغف كبير بالتكنولوجيا والرياضيات ومختلف المجالات العلمية. لقد قررت إنشاء هذا الموقع الشخصي ليكون مساحة رقمية أوثق فيها رحلة تعلمي وأشارككم من خلالها المفاهيم والمعلومات المثيرة للاهتمام التي أكتشفها. أتمنى لكم قراءة ممتعة!";
+}
+---
+
+<html lang={lang || "en"} dir={isRtl ? "rtl" : "ltr"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>ONERO | {pageTitle}</title>
+  </head>
+  <body>
+    <Header />
+    <main class="container">
+      <div class="about-card">
+        <h1>{pageTitle}</h1>
+        <p class="bio-text">{content}</p>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  body {
+    background-color: #0a0a0a;
+    color: #ededed;
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 2rem;
+  }
+
+  .about-card {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 3rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    color: #3b82f6;
+    font-size: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .bio-text {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: #cccccc;
+  }
+</style>
